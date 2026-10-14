@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Cửa Hàng & POS - Đề 21 ICTU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="pos-header">
+        <div class="brand">
+            <i class="fa-solid fa-cash-register brand-icon"></i>
+            <div>
+                <h1>SMART RETAIL POS</h1>
+                <span class="subtext">Quản Lý Cửa Hàng & Bán Hàng Nhanh • ICTU K23</span>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-btn active" onclick="switchTab('pos')"><i class="fa-solid fa-cart-shopping"></i> Bán Hàng (POS)</button>
+            <button class="nav-btn" onclick="switchTab('inventory')"><i class="fa-solid fa-boxes-stacked"></i> Tồn Kho Nhanh</button>
+            <button class="nav-btn" onclick="openAddProductModal()"><i class="fa-solid fa-plus-circle"></i> Thêm Sản Phẩm</button>
+            <a href="/pma/" target="_blank" class="nav-btn pma-btn"><i class="fa-solid fa-database"></i> phpMyAdmin</a>
+        </div>
+
+        <div class="system-status">
+            <span class="badge badge-online"><i class="fa-solid fa-circle-dot"></i> MySQL Connected</span>
+            <span class="cashier-info"><i class="fa-solid fa-user-tie"></i> Thu Ngân 01</span>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="pos-container">
+        <!-- TAB 1: POS CASHIER TERMINAL -->
+        <div id="tab-pos" class="tab-content active">
+            <div class="pos-layout">
+                <!-- LEFT: PRODUCT CATALOG -->
+                <section class="catalog-section">
+                    <div class="search-bar-wrap">
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="searchInput" placeholder="Tìm tên sản phẩm hoặc mã SKU..." onkeyup="filterProducts()">
+                        </div>
+                        <div class="category-filters" id="categoryFilters">
+                            <button class="cat-pill active" onclick="filterByCategory('ALL')">Tất Cả</button>
+                            <!-- Dynamically loaded categories -->
+                        </div>
+                    </div>
+
+                    <div class="product-grid" id="productGrid">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </section>
+
+                <!-- RIGHT: ORDER SUMMARY & CHECKOUT -->
+                <section class="cart-section">
+                    <div class="cart-header">
+                        <h2><i class="fa-solid fa-receipt"></i> Đơn Hàng Hiện Tại</h2>
+                        <button class="clear-cart-btn" onclick="clearCart()"><i class="fa-solid fa-trash-can"></i> Xóa hết</button>
+                    </div>
+
+                    <div class="cart-items-list" id="cartItemsList">
+                        <div class="empty-cart-state">
+                            <i class="fa-solid fa-cart-arrow-down"></i>
+                            <p>Chưa có sản phẩm nào trong giỏ</p>
+                            <span>Bấm vào sản phẩm bên trái để thêm vào đơn</span>
+                        </div>
+                    </div>
+
+                    <div class="cart-footer">
+                        <div class="summary-line">
+                            <span>Tổng số món:</span>
+                            <strong id="cartTotalItems">0</strong>
+                        </div>
+                        <div class="summary-line total">
+                            <span>TỔNG THANH TOÁN:</span>
+                            <strong id="cartTotalPrice" class="price-highlight">0 đ</strong>
+                        </div>
+
+                        <div class="payment-method-select">
+                            <label><i class="fa-regular fa-credit-card"></i> Hình thức:</label>
+                            <select id="paymentMethod">
+                                <option value="Tiền mặt">💵 Tiền mặt</option>
+                                <option value="Chuyển khoản QR">📱 Chuyển khoản QR</option>
+                                <option value="Thẻ ATM / POS">💳 Quẹt thẻ</option>
+                            </select>
+                        </div>
+
+                        <button class="btn-checkout" id="btnCheckout" onclick="processCheckout()">
+                            <i class="fa-solid fa-circle-check"></i> THANH TOÁN & IN HÓA ĐƠN
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- TAB 2: FAST INVENTORY DASHBOARD -->
+        <div id="tab-inventory" class="tab-content">
+            <div class="inventory-container">
+                <div class="stats-overview" id="statsOverview">
+                    <div class="stat-card">
+                        <i class="fa-solid fa-layer-group stat-icon icon-blue"></i>
+                        <div>
+                            <span class="stat-title">Tổng loại sản phẩm</span>
+                            <h3 id="statTotalProducts">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-cubes stat-icon icon-green"></i>
+                        <div>
+                            <span class="stat-title">Tổng hàng tồn kho</span>
+                            <h3 id="statTotalItems">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-triangle-exclamation stat-icon icon-amber"></i>
+                        <div>
+                            <span class="stat-title">Cảnh báo sắp hết hàng</span>
+                            <h3 id="statLowStock">0</h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-sack-dollar stat-icon icon-purple"></i>
+                        <div>
+                            <span class="stat-title">Doanh thu ghi nhận</span>
+                            <h3 id="statRevenue">0 đ</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h2><i class="fa-solid fa-boxes-packing"></i> Báo Cáo Tồn Kho Nhanh Thời Gian Thực</h2>
+                        <button class="btn-refresh" onclick="loadInventory()"><i class="fa-solid fa-rotate"></i> Làm mới</button>
+                    </div>
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Mã SKU</th>
+                                <th>Tên Sản Phẩm</th>
+                                <th>Danh Mục</th>
+                                <th>Đơn Giá</th>
+                                <th>Số Lượng Tồn</th>
+                                <th>Đơn Vị</th>
+                                <th>Trạng Thái Kho</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL: ADD PRODUCT -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-plus-circle"></i> Thêm Sản Phẩm Mới</h3>
+                <span class="close-btn" onclick="closeAddProductModal()">&times;</span>
+            </div>
+            <form id="addProductForm" onsubmit="submitNewProduct(event)">
+                <div class="form-group">
+                    <label>Danh mục</label>
+                    <select id="modalCategory" required></select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mã SKU</label>
+                        <input type="text" id="modalSku" placeholder="VD: SP009" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Đơn vị</label>
+                        <input type="text" id="modalUnit" placeholder="lon, gói, chai..." value="cái" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tên sản phẩm</label>
+                    <input type="text" id="modalName" placeholder="Tên sản phẩm..." required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Giá bán (VNĐ)</label>
+                        <input type="number" id="modalPrice" placeholder="VD: 15000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số lượng nhập kho</label>
+                        <input type="number" id="modalStock" placeholder="VD: 100" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>URL Hình ảnh (tùy chọn)</label>
+                    <input type="text" id="modalImage" placeholder="https://...">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeAddProductModal()">Hủy</button>
+                    <button type="submit" class="btn-submit">Lưu Sản Phẩm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: RECEIPT (HÓA ĐƠN IN) -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content receipt-card">
+            <div class="receipt-header">
+                <h2>CỬA HÀNG TIỆN LỢI ICTU MART</h2>
+                <p>Địa chỉ: Đường Z115, Quyết Thắng, TP. Thái Nguyên</p>
+                <p>Hotline: 1900 6868 - Web: pos.local</p>
+                <div class="divider-dashed"></div>
+                <h3>HÓA ĐƠN BÁN LẺ</h3>
+                <p id="receiptCode">Mã HĐ: HD2026101401</p>
+                <p id="receiptTime">Thời gian: 14/10/2026 20:30</p>
+                <p id="receiptCashier">Thu ngân: Thu Ngân 01</p>
+            </div>
+
+            <div class="divider-dashed"></div>
+
+            <table class="receipt-table">
+                <thead>
+                    <tr>
+                        <th>Mặt hàng</th>
+                        <th>SL</th>
+                        <th>Đơn giá</th>
+                        <th>T.Tiền</th>
+                    </tr>
+                </thead>
+                <tbody id="receiptItemsBody">
+                </tbody>
+            </table>
+
+            <div class="divider-dashed"></div>
+
+            <div class="receipt-totals">
+                <div class="receipt-row total-big">
+                    <span>TỔNG CỘNG:</span>
+                    <strong id="receiptTotalAmount">0 đ</strong>
+                </div>
+                <div class="receipt-row">
+                    <span>Phương thức:</span>
+                    <span id="receiptPaymentMethod">Tiền mặt</span>
+                </div>
+            </div>
+
+            <div class="receipt-footer">
+                <p>Cảm ơn Quý khách & Hẹn gặp lại!</p>
+                <p><i>Hệ thống Quản lý Bán hàng Containerized POS 2026</i></p>
+                <button class="btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> In Hóa Đơn</button>
+                <button class="btn-close-receipt" onclick="closeReceiptModal()">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
