@@ -10,15 +10,38 @@ volumes:
   mysql_data:
 
 services:
-  # 1. Ứng dụng Web POS & Quản lý Cửa hàng
+  # 1. Nginx Reverse Proxy (Cổng giao tiếp Gateway trung tâm - SSL & Security Headers)
+  nginx:
+    image: nginx:alpine
+    container_name: pos_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    networks:
+      - frontend-net
+    depends_on:
+      - web_pos
+      - phpmyadmin
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  # 2. Ứng dụng Web POS & Quản lý Cửa hàng (Được bảo vệ phía sau Nginx)
   web_pos:
     build:
       context: ./app
       dockerfile: Dockerfile
     container_name: pos_webapp
     restart: unless-stopped
-    ports:
-      - "8000:8000"
+    # Cô lập cổng nội bộ, không public trực tiếp ra ngoài Host (Network Isolation)
+    expose:
+      - "8000"
     environment:
       - DB_HOST=db_mysql
       - DB_PORT=3306
@@ -36,7 +59,7 @@ services:
           cpus: '1.0'
           memory: 512M
 
-  # 2. Cơ sở dữ liệu MySQL
+  # 3. Cơ sở dữ liệu MySQL (Chỉ nằm trong mạng backend-net, cô lập tuyệt đối)
   db_mysql:
     image: mysql:8.0
     container_name: pos_mysql
@@ -58,13 +81,13 @@ services:
           cpus: '1.0'
           memory: 1024M
 
-  # 3. Giao diện quản trị cơ sở dữ liệu trực quan phpMyAdmin
+  # 4. Giao diện quản trị cơ sở dữ liệu trực quan phpMyAdmin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: pos_phpmyadmin
     restart: unless-stopped
-    ports:
-      - "8080:80"
+    expose:
+      - "80"
     environment:
       PMA_HOST: db_mysql
       PMA_PORT: 3306

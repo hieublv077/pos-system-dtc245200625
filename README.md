@@ -44,12 +44,22 @@ docker-compose ps
 
 ---
 
-## 🌐 4. Địa chỉ truy cập dịch vụ
-| Dịch vụ | Địa chỉ truy cập | Tài khoản / Ghi chú |
-| :--- | :--- | :--- |
-| **Giao diện Bán hàng POS** | [http://localhost:8000](http://localhost:8000) | Giao diện thu ngân bán hàng & kho |
-| **Quản trị phpMyAdmin** | [http://localhost:8080](http://localhost:8080) | User: `pos_user` / Pass: xem trong `.env` |
-| **Metrics Endpoint** | [http://localhost:8000/metrics](http://localhost:8000/metrics) | Cung cấp số liệu cho Prometheus |
+## 🌐 4. Địa chỉ truy cập dịch vụ (Qua Nginx Reverse Proxy)
+| Dịch vụ | Địa chỉ truy cập | Giao thức | Ghi chú |
+| :--- | :--- | :--- | :--- |
+| **Giao diện Bán hàng POS** | [https://localhost](https://localhost) | HTTPS (SSL) | Tự động chuyển hướng từ `http://localhost` |
+| **Quản trị phpMyAdmin** | [https://localhost/pma/](https://localhost/pma/) | HTTPS (SSL) | User: `pos_user` / Pass trong `.env` |
+| **Kiểm tra Security Headers** | `curl -kI https://localhost` | Terminal | Xem các header: `X-Frame-Options`, `X-XSS-Protection`... |
+
+### Kiểm tra Security Headers bằng lệnh curl:
+```bash
+curl -k -I https://localhost
+```
+*Kết quả phản hồi sẽ bao gồm:*
+* `server: nginx` (không lộ số hiệu phiên bản do bật `server_tokens off;`)
+* `x-frame-options: SAMEORIGIN`
+* `x-content-type-options: nosniff`
+* `x-xss-protection: 1; mode=block`
 
 ---
 
