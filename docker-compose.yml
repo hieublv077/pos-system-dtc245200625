@@ -12,6 +12,7 @@ volumes:
   mysql_data:
   prometheus_data:
   grafana_data:
+  loki_data:
 
 services:
   # 1. Nginx Reverse Proxy (Cổng giao tiếp Gateway trung tâm - SSL & Security Headers)
@@ -160,3 +161,42 @@ services:
         limits:
           cpus: '0.5'
           memory: 512M
+
+  # 8. Loki: Máy chủ lưu trữ và lập chỉ mục Log tập trung
+  loki:
+    image: grafana/loki:2.9.2
+    container_name: pos_loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    networks:
+      - monitor-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # 9. Promtail: Thu thập log từ tất cả các Container Docker và đẩy về Loki
+  promtail:
+    image: grafana/promtail:2.9.2
+    container_name: pos_promtail
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./promtail/promtail-config.yaml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - monitor-net
+    depends_on:
+      - loki
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M

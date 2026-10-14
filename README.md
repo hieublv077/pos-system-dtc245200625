@@ -51,6 +51,7 @@ docker-compose ps
 | **Quản trị phpMyAdmin** | [https://localhost/pma/](https://localhost/pma/) | HTTPS (SSL) | User: `pos_user` / Pass trong `.env` |
 | **Prometheus Server** | [http://localhost:9090](http://localhost:9090) | HTTP | Kiểm tra targets tại `/targets` |
 | **Grafana Dashboard** | [http://localhost:3000](http://localhost:3000) | HTTP | User: `admin` / Pass: `AdminGrafana_2026!` |
+| **Loki Log Server** | [http://localhost:3100](http://localhost:3100) | HTTP | Endpoint nhận log và API LogQL |
 
 ### 5. Giám sát hệ thống (Observability):
 * **Prometheus Targets** (`http://localhost:9090/targets`): Tự động cào dữ liệu từ 3 job: `prometheus`, `cadvisor` (container CPU/RAM), và `pos_webapp` (request rate, doanh thu, đơn hàng).
@@ -59,6 +60,22 @@ docker-compose ps
   - Tổng số đơn hàng bán lẻ đã thanh toán.
   - Tổng doanh thu thực tế (VNĐ).
   - % Sử dụng CPU và mức tiêu thụ RAM của các container.
+
+### 6. Quản lý Log tập trung (Loki + Promtail) & Truy vấn LogQL:
+Promtail tự động gom log từ toàn bộ container trên host đẩy về Loki server. Truy cập **Grafana -> Explore -> Chọn Data Source: Loki** và chạy các câu truy vấn LogQL:
+
+* **Truy vấn 1 (Lọc log lỗi HTTP 5xx từ Nginx Access Log)**:
+  ```logql
+  {job="docker"} |= "pos_nginx" |= " 50"
+  ```
+* **Truy vấn 2 (Lọc các thông điệp cảnh báo, ngoại lệ hệ thống)**:
+  ```logql
+  {job="docker"} |~ "(?i)(error|exception|failed|warning)"
+  ```
+* **Truy vấn 3 (Giám sát giao dịch tạo đơn hàng thanh toán POS)**:
+  ```logql
+  {job="docker"} |= "pos_webapp" |= "POST /api/orders"
+  ```
 
 ### Kiểm tra Security Headers bằng lệnh curl:
 ```bash
