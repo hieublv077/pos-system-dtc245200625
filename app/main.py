@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, RedirectResponse
 from pydantic import BaseModel
 from typing import List, Optional
 import os
@@ -267,6 +267,13 @@ TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+@app.get("/index.php")
+def php_redirect(request: Request):
+    """Tự động chuyển hướng các truy vấn phpMyAdmin về đúng tiền tố /pma/"""
+    query = str(request.query_params)
+    target = f"/pma/index.php?{query}" if query else "/pma/"
+    return RedirectResponse(url=target)
 
 @app.get("/", response_class=HTMLResponse)
 def index_page():

@@ -96,6 +96,7 @@ services:
     environment:
       PMA_HOST: db_mysql
       PMA_PORT: 3306
+      PMA_ABSOLUTE_URI: /pma/
     networks:
       - frontend-net
       - backend-net
