@@ -1,0 +1,26 @@
+# Cấu hình Prometheus Giám Sát Hệ Thống Quản Lý Cửa Hàng / POS
+global:
+  scrape_interval: 10s       # Chu kỳ cào dữ liệu mỗi 10 giây
+  evaluation_interval: 10s   # Chu kỳ đánh giá quy tắc cảnh báo
+  scrape_timeout: 5s
+
+scrape_configs:
+  # 1. Tự giám sát tiến trình Prometheus
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # 2. Thu thập số liệu tài nguyên Container từ cAdvisor (CPU, Memory, Network)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # 3. Thu thập số liệu nghiệp vụ bán hàng từ ứng dụng Web POS (Requests, Orders, Revenue)
+  - job_name: 'pos_webapp'
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['web_pos:8000']
+        labels:
+          app: 'pos_system'
+          environment: 'production'

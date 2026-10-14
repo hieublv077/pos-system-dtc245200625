@@ -44,12 +44,21 @@ docker-compose ps
 
 ---
 
-## 🌐 4. Địa chỉ truy cập dịch vụ (Qua Nginx Reverse Proxy)
+## 🌐 4. Địa chỉ truy cập dịch vụ
 | Dịch vụ | Địa chỉ truy cập | Giao thức | Ghi chú |
 | :--- | :--- | :--- | :--- |
 | **Giao diện Bán hàng POS** | [https://localhost](https://localhost) | HTTPS (SSL) | Tự động chuyển hướng từ `http://localhost` |
 | **Quản trị phpMyAdmin** | [https://localhost/pma/](https://localhost/pma/) | HTTPS (SSL) | User: `pos_user` / Pass trong `.env` |
-| **Kiểm tra Security Headers** | `curl -kI https://localhost` | Terminal | Xem các header: `X-Frame-Options`, `X-XSS-Protection`... |
+| **Prometheus Server** | [http://localhost:9090](http://localhost:9090) | HTTP | Kiểm tra targets tại `/targets` |
+| **Grafana Dashboard** | [http://localhost:3000](http://localhost:3000) | HTTP | User: `admin` / Pass: `AdminGrafana_2026!` |
+
+### 5. Giám sát hệ thống (Observability):
+* **Prometheus Targets** (`http://localhost:9090/targets`): Tự động cào dữ liệu từ 3 job: `prometheus`, `cadvisor` (container CPU/RAM), và `pos_webapp` (request rate, doanh thu, đơn hàng).
+* **Grafana Dashboard**: Đã tích hợp sẵn Dashboard tự động load tại thư mục `POS Monitoring` với các biểu đồ thời gian thực:
+  - Tần suất HTTP Request POS (req/s).
+  - Tổng số đơn hàng bán lẻ đã thanh toán.
+  - Tổng doanh thu thực tế (VNĐ).
+  - % Sử dụng CPU và mức tiêu thụ RAM của các container.
 
 ### Kiểm tra Security Headers bằng lệnh curl:
 ```bash
