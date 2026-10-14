@@ -25,6 +25,8 @@ def get_db_connection():
                 autocommit=True,
                 charset='utf8mb4'
             )
+            with conn.cursor() as cur:
+                cur.execute("SET NAMES utf8mb4;")
             return conn
         except pymysql.MySQLError as e:
             if attempt < max_retries - 1:
