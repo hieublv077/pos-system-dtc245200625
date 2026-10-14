@@ -2,7 +2,10 @@
 > **Học phần**: Triển khai và Quản trị Hệ thống Phần mềm (TKQT HTPM K23)  
 > **Trường**: Đại học Công nghệ Thông tin & Truyền thông - Đại học Thái Nguyên (ICTU)  
 > **Sinh viên thực hiện**: Dương Quý Hiếu  
+> **Mã số sinh viên (MSSV)**: DTC245200625  
+> **Lớp**: CNTT K23G  
 > **Giảng viên hướng dẫn**: Thầy Vũ Việt Dũng  
+> **GitHub Repository**: [https://github.com/hieublv077/pos-system-dtc245200625](https://github.com/hieublv077/pos-system-dtc245200625)  
 
 ---
 
