@@ -24,10 +24,10 @@
     --danger-border: #fecaca;
     
     /* Elegant Light Theme Surfaces & Glassmorphism */
-    --bg-base: #f8fafc;
+    --bg-base: #f0f7ff;
     --bg-surface: #ffffff;
-    --bg-surface-glass: rgba(255, 255, 255, 0.88);
-    --bg-subtle: #f1f5f9;
+    --bg-surface-glass: rgba(255, 255, 255, 0.78);
+    --bg-subtle: rgba(241, 245, 249, 0.85);
     --bg-subtle-hover: #e2e8f0;
 
     /* High-contrast Clean Typography (Slate Scale) */
@@ -65,7 +65,9 @@
 }
 
 body {
-    background-color: var(--bg-base);
+    background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 35%, #e0e7ff 70%, #f0fdf4 100%);
+    background-size: 300% 300%;
+    animation: auroraFlow 18s ease infinite;
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
@@ -74,8 +76,14 @@ body {
     position: relative;
 }
 
+@keyframes auroraFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 /* ==========================================================================
-   DYNAMIC LIVING ANIMATED BACKGROUND (PREMIUM LIGHT THEME)
+   DYNAMIC LIVING ANIMATED BACKGROUND (PASTEL AURORA LIGHT THEME)
    ========================================================================== */
 .animated-bg-container {
     position: fixed;
@@ -86,90 +94,88 @@ body {
     pointer-events: none;
     z-index: -1;
     overflow: hidden;
-    background-color: #f8fafc;
 }
 
 .bg-mesh-grid {
     position: absolute;
     inset: 0;
-    background-size: 38px 38px;
+    background-size: 32px 32px;
     background-image: 
-        linear-gradient(to right, rgba(226, 232, 240, 0.5) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(226, 232, 240, 0.5) 1px, transparent 1px);
-    mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85) 0%, transparent 80%);
-    -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85) 0%, transparent 80%);
+        radial-gradient(circle, rgba(99, 102, 241, 0.12) 1.5px, transparent 1.5px);
+    mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.9) 0%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.9) 0%, transparent 80%);
 }
 
 .bg-orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(85px);
-    opacity: 0.55;
+    filter: blur(65px);
+    opacity: 0.75;
     will-change: transform;
 }
 
-/* Floating Orb 1: Indigo & Electric Blue */
+/* Floating Orb 1: Radiant Cyan & Sky Blue */
 .orb-1 {
-    width: 520px;
-    height: 520px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.38) 0%, rgba(59, 130, 246, 0.15) 70%, transparent 100%);
-    top: -100px;
+    width: 580px;
+    height: 580px;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.5) 0%, rgba(56, 189, 248, 0.22) 60%, transparent 80%);
+    top: -120px;
     left: -100px;
-    animation: floatOrb1 20s ease-in-out infinite alternate;
+    animation: floatOrb1 18s ease-in-out infinite alternate;
 }
 
-/* Floating Orb 2: Purple & Rose Glow */
+/* Floating Orb 2: Radiant Lavender & Rose Violet */
 .orb-2 {
-    width: 550px;
-    height: 550px;
-    background: radial-gradient(circle, rgba(236, 72, 153, 0.28) 0%, rgba(168, 85, 247, 0.12) 70%, transparent 100%);
-    bottom: -120px;
-    right: 15%;
-    animation: floatOrb2 25s ease-in-out infinite alternate;
+    width: 620px;
+    height: 620px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.42) 0%, rgba(236, 72, 153, 0.2) 60%, transparent 80%);
+    bottom: -140px;
+    right: 8%;
+    animation: floatOrb2 22s ease-in-out infinite alternate;
 }
 
-/* Floating Orb 3: Emerald & Cyan Glow */
+/* Floating Orb 3: Fresh Emerald Mint */
 .orb-3 {
-    width: 440px;
-    height: 440px;
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(6, 182, 212, 0.12) 70%, transparent 100%);
-    top: 35%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.38) 0%, rgba(52, 211, 153, 0.16) 60%, transparent 80%);
+    top: 30%;
     right: -80px;
-    animation: floatOrb3 18s ease-in-out infinite alternate;
+    animation: floatOrb3 16s ease-in-out infinite alternate;
 }
 
-/* Floating Orb 4: Amber & Warm Sunset subtle glow */
+/* Floating Orb 4: Warm Sunset Peach */
 .orb-4 {
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(239, 68, 68, 0.08) 70%, transparent 100%);
-    bottom: 20%;
-    left: 20%;
-    animation: floatOrb4 22s ease-in-out infinite alternate;
+    width: 480px;
+    height: 480px;
+    background: radial-gradient(circle, rgba(251, 146, 60, 0.36) 0%, rgba(244, 63, 94, 0.14) 60%, transparent 80%);
+    bottom: 15%;
+    left: 18%;
+    animation: floatOrb4 20s ease-in-out infinite alternate;
 }
 
 @keyframes floatOrb1 {
     0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(120px, 90px) scale(1.12); }
-    100% { transform: translate(60px, 170px) scale(0.95); }
+    50% { transform: translate(140px, 90px) scale(1.15); }
+    100% { transform: translate(70px, 180px) scale(0.95); }
 }
 
 @keyframes floatOrb2 {
     0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(-100px, -90px) scale(1.1); }
-    100% { transform: translate(-40px, -150px) scale(0.92); }
+    50% { transform: translate(-120px, -100px) scale(1.12); }
+    100% { transform: translate(-50px, -160px) scale(0.92); }
 }
 
 @keyframes floatOrb3 {
     0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(-80px, 100px) scale(1.15); }
-    100% { transform: translate(-140px, 30px) scale(0.96); }
+    50% { transform: translate(-90px, 110px) scale(1.16); }
+    100% { transform: translate(-150px, 40px) scale(0.95); }
 }
 
 @keyframes floatOrb4 {
     0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(90px, -70px) scale(1.08); }
-    100% { transform: translate(130px, 40px) scale(0.94); }
+    50% { transform: translate(100px, -80px) scale(1.1); }
+    100% { transform: translate(140px, 50px) scale(0.93); }
 }
 
 /* Custom Sleek Scrollbar */

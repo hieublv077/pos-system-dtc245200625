@@ -109,7 +109,7 @@ function renderProducts() {
 
         return `
             <div class="product-card" onclick="addToCart(${p.id})">
-                <img src="${imgUrl}" class="prod-img" alt="${p.name}">
+                <img src="${imgUrl}" class="prod-img" alt="${p.name}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300';">
                 <div class="prod-info">
                     <span class="prod-sku">${p.sku} • ${p.category_name || 'Khác'}</span>
                     <h4 class="prod-name">${p.name}</h4>
