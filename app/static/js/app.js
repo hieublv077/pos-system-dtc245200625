@@ -132,6 +132,10 @@ function showToast(message, type = 'success') {
         container.className = 'toast-container';
         document.body.appendChild(container);
     }
+    // Giới hạn tối đa 2 thông báo cùng lúc để gọn gàng
+    while (container.children.length >= 2) {
+        container.removeChild(container.firstChild);
+    }
     const toast = document.createElement('div');
     toast.className = `toast-item toast-${type}`;
     const icon = type === 'success' ? 'fa-circle-check' : (type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-info');
@@ -139,8 +143,8 @@ function showToast(message, type = 'success') {
     container.appendChild(toast);
     setTimeout(() => {
         toast.classList.add('hide');
-        setTimeout(() => toast.remove(), 300);
-    }, 2200);
+        setTimeout(() => toast.remove(), 250);
+    }, 1800);
 }
 
 function filterProducts() {
