@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SMART RETAIL POS - ULTRA-PREMIUM MODERN LIGHT THEME DESIGN SYSTEM
+   SMART RETAIL POS - ULTRA-PREMIUM MODERN LIGHT THEME WITH LIVING ANIMATED BG
    Hệ Thống Quản Lý Cửa Hàng & Bán Hàng Nhanh - ICTU K23
    ========================================================================== */
 
@@ -23,10 +23,10 @@
     --danger-light: #fef2f2;
     --danger-border: #fecaca;
     
-    /* Elegant Light Theme Surfaces */
+    /* Elegant Light Theme Surfaces & Glassmorphism */
     --bg-base: #f8fafc;
     --bg-surface: #ffffff;
-    --bg-surface-glass: rgba(255, 255, 255, 0.9);
+    --bg-surface-glass: rgba(255, 255, 255, 0.88);
     --bg-subtle: #f1f5f9;
     --bg-subtle-hover: #e2e8f0;
 
@@ -66,15 +66,110 @@
 
 body {
     background-color: var(--bg-base);
-    background-image: 
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.06) 0px, transparent 50%),
-        radial-gradient(at 50% 100%, rgba(236, 72, 153, 0.03) 0px, transparent 50%);
-    background-attachment: fixed;
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* ==========================================================================
+   DYNAMIC LIVING ANIMATED BACKGROUND (PREMIUM LIGHT THEME)
+   ========================================================================== */
+.animated-bg-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+    background-color: #f8fafc;
+}
+
+.bg-mesh-grid {
+    position: absolute;
+    inset: 0;
+    background-size: 38px 38px;
+    background-image: 
+        linear-gradient(to right, rgba(226, 232, 240, 0.5) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(226, 232, 240, 0.5) 1px, transparent 1px);
+    mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85) 0%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85) 0%, transparent 80%);
+}
+
+.bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(85px);
+    opacity: 0.55;
+    will-change: transform;
+}
+
+/* Floating Orb 1: Indigo & Electric Blue */
+.orb-1 {
+    width: 520px;
+    height: 520px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.38) 0%, rgba(59, 130, 246, 0.15) 70%, transparent 100%);
+    top: -100px;
+    left: -100px;
+    animation: floatOrb1 20s ease-in-out infinite alternate;
+}
+
+/* Floating Orb 2: Purple & Rose Glow */
+.orb-2 {
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.28) 0%, rgba(168, 85, 247, 0.12) 70%, transparent 100%);
+    bottom: -120px;
+    right: 15%;
+    animation: floatOrb2 25s ease-in-out infinite alternate;
+}
+
+/* Floating Orb 3: Emerald & Cyan Glow */
+.orb-3 {
+    width: 440px;
+    height: 440px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(6, 182, 212, 0.12) 70%, transparent 100%);
+    top: 35%;
+    right: -80px;
+    animation: floatOrb3 18s ease-in-out infinite alternate;
+}
+
+/* Floating Orb 4: Amber & Warm Sunset subtle glow */
+.orb-4 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(239, 68, 68, 0.08) 70%, transparent 100%);
+    bottom: 20%;
+    left: 20%;
+    animation: floatOrb4 22s ease-in-out infinite alternate;
+}
+
+@keyframes floatOrb1 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(120px, 90px) scale(1.12); }
+    100% { transform: translate(60px, 170px) scale(0.95); }
+}
+
+@keyframes floatOrb2 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-100px, -90px) scale(1.1); }
+    100% { transform: translate(-40px, -150px) scale(0.92); }
+}
+
+@keyframes floatOrb3 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-80px, 100px) scale(1.15); }
+    100% { transform: translate(-140px, 30px) scale(0.96); }
+}
+
+@keyframes floatOrb4 {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(90px, -70px) scale(1.08); }
+    100% { transform: translate(130px, 40px) scale(0.94); }
 }
 
 /* Custom Sleek Scrollbar */
@@ -98,8 +193,8 @@ body {
    ========================================================================== */
 .pos-header {
     background: var(--bg-surface-glass);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     border-bottom: 1px solid var(--border-light);
     padding: 12px 28px;
     display: flex;
@@ -287,11 +382,11 @@ body {
 }
 
 /* ==========================================================================
-   3. CATALOG SECTION & PRODUCT CARDS
+   3. CATALOG SECTION & PRODUCT CARDS (COMPACT & PROPORTIONAL)
    ========================================================================== */
 .catalog-section {
     background: var(--bg-surface-glass);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(14px);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-lg);
     padding: 18px 20px;
@@ -380,18 +475,20 @@ body {
     transform: translateY(-1px);
 }
 
-/* Product Grid */
+/* Product Grid - Fixed start alignment so cards NEVER stretch down */
 .product-grid {
     flex: 1;
     overflow-y: auto;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+    grid-auto-rows: max-content;
+    align-content: start;
     gap: 14px;
     padding-right: 6px;
     padding-bottom: 8px;
 }
 
-/* Ultra-Modern Product Card with Floating Lift */
+/* Ultra-Modern Product Card with Fixed Proportions */
 .product-card {
     border: 1px solid rgba(226, 232, 240, 0.9);
     border-radius: var(--radius-md);
@@ -403,6 +500,8 @@ body {
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
     position: relative;
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    height: 250px;
+    max-height: 250px;
 }
 
 .product-card:hover {
@@ -416,7 +515,7 @@ body {
 }
 
 .prod-img {
-    height: 128px;
+    height: 125px;
     width: 100%;
     object-fit: cover;
     background: #f1f5f9;
@@ -428,7 +527,7 @@ body {
 }
 
 .prod-info {
-    padding: 12px;
+    padding: 10px 12px;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -444,15 +543,16 @@ body {
 }
 
 .prod-name {
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 700;
     color: var(--text-primary);
-    margin: 5px 0 10px;
+    margin: 4px 0 6px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     line-height: 1.35;
+    height: 34px;
 }
 
 .prod-bottom {
@@ -463,15 +563,15 @@ body {
 }
 
 .prod-price {
-    font-size: 14.5px;
+    font-size: 14px;
     font-weight: 800;
     color: #4f46e5;
     letter-spacing: -0.3px;
 }
 
 .prod-stock-badge {
-    font-size: 11px;
-    padding: 3px 8px;
+    font-size: 10.5px;
+    padding: 2.5px 7.5px;
     border-radius: var(--radius-pill);
     font-weight: 700;
     letter-spacing: 0.2px;
@@ -486,7 +586,7 @@ body {
    ========================================================================== */
 .cart-section {
     background: var(--bg-surface-glass);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(14px);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-lg);
     padding: 18px 20px;
@@ -781,7 +881,7 @@ body {
 
 .stat-card {
     background: var(--bg-surface-glass);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(14px);
     border-radius: var(--radius-lg);
     padding: 18px 22px;
     display: flex;
@@ -829,7 +929,7 @@ body {
 
 .table-card {
     background: var(--bg-surface-glass);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(14px);
     border-radius: var(--radius-lg);
     padding: 20px 24px;
     box-shadow: var(--shadow-card);
@@ -910,7 +1010,7 @@ body {
 
 /* ==========================================================================
    6. MODAL & DIALOGS
-   ========================================================================== */
+   ========================================================================= */
 .modal {
     display: none;
     position: fixed;
