@@ -11,7 +11,7 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Main Style -->
-    <link rel="stylesheet" href="/static/css/style.css?v=4.0">
+    <link rel="stylesheet" href="/static/css/style.css?v=4.1">
 </head>
 <body>
     <!-- TOP HEADER -->
@@ -39,6 +39,9 @@
             <a href="/pma/" target="_blank" class="nav-btn pma-btn">
                 <i class="fa-solid fa-database"></i> phpMyAdmin
             </a>
+            <button onclick="openGrafanaLoki()" class="nav-btn grafana-btn" title="Mở Grafana Explore để truy vấn Log tập trung bằng Loki & LogQL">
+                <i class="fa-solid fa-fire"></i> Loki & Grafana
+            </button>
         </nav>
 
         <div class="system-status">
@@ -287,6 +290,6 @@
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toastContainer" class="toast-container"></div>
 
-    <script src="/static/js/app.js?v=4.0"></script>
+    <script src="/static/js/app.js?v=4.1"></script>
 </body>
 </html>

@@ -483,3 +483,9 @@ function showToast(message, type = 'success') {
         setTimeout(() => toast.remove(), 250);
     }, 1500);
 }
+
+// MỞ NHANH GRAFANA EXPLORE & LOKI LOGS
+function openGrafanaLoki() {
+    const host = window.location.hostname || 'localhost';
+    window.open(`http://${host}:3000/explore`, '_blank');
+}

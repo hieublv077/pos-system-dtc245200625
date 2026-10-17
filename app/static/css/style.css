@@ -195,6 +195,17 @@ body {
     color: var(--primary-blue);
 }
 
+.grafana-btn {
+    color: #ea580c;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+}
+
+.grafana-btn:hover {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
 /* System Status (Right) */
 .system-status {
     display: flex;
