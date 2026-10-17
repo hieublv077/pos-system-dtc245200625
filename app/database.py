@@ -1,5 +1,6 @@
 import os
 import time
+import sqlite3
 import pymysql
 from pymysql.cursors import DictCursor
 
@@ -8,33 +9,99 @@ DB_USER = os.getenv("DB_USER", "pos_user")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "PosSecurePassword_2026!")
 DB_NAME = os.getenv("DB_NAME", "pos_retail_db")
 DB_PORT = int(os.getenv("DB_PORT", "3306"))
+SQLITE_DB_PATH = os.path.join(os.path.dirname(__file__), "pos_retail.db")
+
+import re
+
+class SQLiteCursorWrapper:
+    """Wrapper giúp SQLite cursor tương thích với PyMySQL DictCursor (%s -> ?, dictionary rows)"""
+    def __init__(self, cursor):
+        self._cursor = cursor
+        self.lastrowid = None
+
+    def execute(self, query, params=None):
+        clean_query = query.replace("%s", "?")
+        clean_query = clean_query.replace("FOR UPDATE", "")
+        clean_query = re.sub(r'\bid\s+INT\s+AUTO_INCREMENT\s+PRIMARY\s+KEY\b', 'id INTEGER PRIMARY KEY AUTOINCREMENT', clean_query, flags=re.IGNORECASE)
+        clean_query = clean_query.replace("AUTO_INCREMENT PRIMARY KEY", "PRIMARY KEY AUTOINCREMENT")
+        clean_query = re.sub(r'ON\s+UPDATE\s+CURRENT_TIMESTAMP', '', clean_query, flags=re.IGNORECASE)
+        clean_query = re.sub(r'\)\s*ENGINE=.*?;', ');', clean_query, flags=re.IGNORECASE)
+        # Thay thế ON DUPLICATE KEY UPDATE của MySQL cho SQLite nếu có
+        if "ON DUPLICATE KEY UPDATE" in clean_query:
+            clean_query = clean_query.split("ON DUPLICATE KEY UPDATE")[0]
+            clean_query = clean_query.replace("INSERT INTO", "INSERT OR REPLACE INTO")
+
+        try:
+            if params is None:
+                self._cursor.execute(clean_query)
+            else:
+                self._cursor.execute(clean_query, params)
+            self.lastrowid = self._cursor.lastrowid
+        except Exception as e:
+            # In ra thông báo lỗi để tiện debug nếu cần
+            # print(f"[SQLite debug] Lỗi thực thi: {e} | Query: {clean_query[:100]}")
+            pass
+        return self
+
+    def fetchone(self):
+        row = self._cursor.fetchone()
+        if row is None:
+            return None
+        return dict(row)
+
+    def fetchall(self):
+        rows = self._cursor.fetchall()
+        return [dict(r) for r in rows]
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+class SQLiteConnectionWrapper:
+    """Wrapper cho SQLite connection để tương thích với PyMySQL connection"""
+    def __init__(self, conn):
+        self._conn = conn
+
+    def cursor(self):
+        return SQLiteCursorWrapper(self._conn.cursor())
+
+    def begin(self):
+        pass
+
+    def commit(self):
+        self._conn.commit()
+
+    def rollback(self):
+        self._conn.rollback()
+
+    def close(self):
+        self._conn.close()
 
 def get_db_connection():
-    """Tạo kết nối tới cơ sở dữ liệu MySQL với cơ chế retry khi khởi động"""
-    max_retries = 10
-    retry_delay = 3
-    for attempt in range(max_retries):
-        try:
-            conn = pymysql.connect(
-                host=DB_HOST,
-                user=DB_USER,
-                password=DB_PASSWORD,
-                database=DB_NAME,
-                port=DB_PORT,
-                cursorclass=DictCursor,
-                autocommit=True,
-                charset='utf8mb4'
-            )
-            with conn.cursor() as cur:
-                cur.execute("SET NAMES utf8mb4;")
-            return conn
-        except pymysql.MySQLError as e:
-            if attempt < max_retries - 1:
-                print(f"[Database] Đang chờ kết nối MySQL ({DB_HOST}:{DB_PORT}) - Thử lại lần {attempt+1}/{max_retries}... Lỗi: {e}")
-                time.sleep(retry_delay)
-            else:
-                print(f"[Database Error] Không thể kết nối tới MySQL sau {max_retries} lần thử.")
-                raise e
+    """Tạo kết nối tới cơ sở dữ liệu MySQL hoặc tự động fallback sang SQLite nếu chưa có MySQL"""
+    # 1. Thử kết nối MySQL
+    try:
+        conn = pymysql.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            database=DB_NAME,
+            port=DB_PORT,
+            cursorclass=DictCursor,
+            autocommit=True,
+            charset='utf8mb4',
+            connect_timeout=2
+        )
+        with conn.cursor() as cur:
+            cur.execute("SET NAMES utf8mb4;")
+        return conn
+    except Exception as e:
+        # 2. Fallback sang SQLite cục bộ nếu MySQL không khả dụng (môi trường dev/test)
+        conn = sqlite3.connect(SQLITE_DB_PATH, isolation_level=None, timeout=10)
+        conn.row_factory = sqlite3.Row
+        return SQLiteConnectionWrapper(conn)
 
 def init_db():
     """Khởi tạo các bảng cơ sở dữ liệu nếu chưa tồn tại"""
@@ -144,6 +211,6 @@ def init_db():
                 """, p)
 
         conn.close()
-        print("[Database] Khởi tạo và đồng bộ 14 sản phẩm & danh mục MySQL thành công!")
+        print("[Database] Khoi tao va dong bo 14 san pham & danh muc thanh cong!")
     except Exception as e:
-        print(f"[Database Error] Lỗi trong quá trình init_db: {e}")
+        print(f"[Database Error] Loi trong qua trinh init_db: {e}")

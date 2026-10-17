@@ -9,6 +9,8 @@ __pycache__/
 venv/
 .venv/
 env/
+*.db
+*.sqlite3
 
 # Docker volumes & logs
 *.log

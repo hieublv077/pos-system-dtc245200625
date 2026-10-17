@@ -3,41 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Quản Lý Cửa Hàng & POS - Đề 21 ICTU</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>SMART RETAIL POS - Quản Lý Cửa Hàng & Bán Hàng Nhanh</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style -->
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <!-- DYNAMIC ANIMATED LIVING BACKGROUND (LIGHT THEME) -->
-    <div class="animated-bg-container">
-        <div class="bg-orb orb-1"></div>
-        <div class="bg-orb orb-2"></div>
-        <div class="bg-orb orb-3"></div>
-        <div class="bg-orb orb-4"></div>
-        <div class="bg-mesh-grid"></div>
-    </div>
-
-    <!-- HEADER -->
+    <!-- TOP HEADER -->
     <header class="pos-header">
         <div class="brand">
-            <i class="fa-solid fa-cash-register brand-icon"></i>
-            <div>
+            <div class="brand-icon-box">
+                <i class="fa-solid fa-cash-register"></i>
+            </div>
+            <div class="brand-text">
                 <h1>SMART RETAIL POS</h1>
-                <span class="subtext">Quản Lý Cửa Hàng & Bán Hàng Nhanh • ICTU K23</span>
+                <span class="subtext">Quản lý Cửa Hàng & Bán Hàng Nhanh • ICTU K23</span>
             </div>
         </div>
 
-        <div class="nav-tabs">
-            <button class="nav-btn active" onclick="switchTab('pos')"><i class="fa-solid fa-cart-shopping"></i> Bán Hàng (POS)</button>
-            <button class="nav-btn" onclick="switchTab('inventory')"><i class="fa-solid fa-boxes-stacked"></i> Tồn Kho Nhanh</button>
-            <button class="nav-btn" onclick="openAddProductModal()"><i class="fa-solid fa-plus-circle"></i> Thêm Sản Phẩm</button>
-            <a href="/pma/" target="_blank" class="nav-btn pma-btn"><i class="fa-solid fa-database"></i> phpMyAdmin</a>
-        </div>
+        <nav class="nav-tabs">
+            <button class="nav-btn active" id="btnTabPos" onclick="switchTab('pos', this)">
+                <i class="fa-solid fa-cart-shopping"></i> Bán Hàng (POS)
+            </button>
+            <button class="nav-btn" id="btnTabInventory" onclick="switchTab('inventory', this)">
+                <i class="fa-solid fa-chart-simple"></i> Tồn Kho Nhanh
+            </button>
+            <button class="nav-btn" id="btnTabAddProduct" onclick="openAddProductModal()">
+                <i class="fa-solid fa-circle-plus"></i> Thêm Sản Phẩm
+            </button>
+            <a href="/pma/" target="_blank" class="nav-btn pma-btn">
+                <i class="fa-solid fa-database"></i> phpMyAdmin
+            </a>
+        </nav>
 
         <div class="system-status">
-            <span class="badge badge-online"><i class="fa-solid fa-circle-dot"></i> MySQL Connected</span>
-            <span class="cashier-info"><i class="fa-solid fa-user-tie"></i> Thu Ngân 01</span>
+            <div class="badge badge-online">
+                <span class="status-dot"></span>
+                <span>MySQL Connected</span>
+            </div>
+            <div class="cashier-pill">
+                <i class="fa-solid fa-user"></i>
+                <span>Thu Ngân 01</span>
+                <i class="fa-solid fa-chevron-down caret-icon"></i>
+            </div>
         </div>
     </header>
 
@@ -54,8 +67,8 @@
                             <input type="text" id="searchInput" placeholder="Tìm tên sản phẩm hoặc mã SKU..." onkeyup="filterProducts()">
                         </div>
                         <div class="category-filters" id="categoryFilters">
-                            <button class="cat-pill active" onclick="filterByCategory('ALL')">Tất Cả</button>
-                            <!-- Dynamically loaded categories -->
+                            <button class="cat-pill active" onclick="filterByCategory('ALL', this)">Tất cả</button>
+                            <!-- Dynamically loaded categories with emojis -->
                         </div>
                     </div>
 
@@ -67,13 +80,13 @@
                 <!-- RIGHT: ORDER SUMMARY & CHECKOUT -->
                 <section class="cart-section">
                     <div class="cart-header">
-                        <h2><i class="fa-solid fa-receipt"></i> Đơn Hàng Hiện Tại</h2>
+                        <h2><i class="fa-solid fa-clipboard-list"></i> Đơn Hàng Hiện Tại</h2>
                         <button class="clear-cart-btn" onclick="clearCart()"><i class="fa-solid fa-trash-can"></i> Xóa hết</button>
                     </div>
 
                     <div class="cart-items-list" id="cartItemsList">
                         <div class="empty-cart-state">
-                            <i class="fa-solid fa-cart-arrow-down"></i>
+                            <i class="fa-solid fa-cart-shopping"></i>
                             <p>Chưa có sản phẩm nào trong giỏ</p>
                             <span>Bấm vào sản phẩm bên trái để thêm vào đơn</span>
                         </div>
@@ -89,13 +102,15 @@
                             <strong id="cartTotalPrice" class="price-highlight">0 đ</strong>
                         </div>
 
-                        <div class="payment-method-select">
-                            <label><i class="fa-regular fa-credit-card"></i> Hình thức:</label>
-                            <select id="paymentMethod">
-                                <option value="Tiền mặt">💵 Tiền mặt</option>
-                                <option value="Chuyển khoản QR">📱 Chuyển khoản QR</option>
-                                <option value="Thẻ ATM / POS">💳 Quẹt thẻ</option>
-                            </select>
+                        <div class="payment-method-row">
+                            <label for="paymentMethod"><i class="fa-solid fa-wallet"></i> Hình thức:</label>
+                            <div class="select-wrapper">
+                                <select id="paymentMethod" class="payment-select">
+                                    <option value="Tiền mặt">💵 Tiền mặt</option>
+                                    <option value="Chuyển khoản QR">📱 Chuyển khoản QR</option>
+                                    <option value="Quẹt thẻ POS">💳 Quẹt thẻ POS</option>
+                                </select>
+                            </div>
                         </div>
 
                         <button class="btn-checkout" id="btnCheckout" onclick="processCheckout()">
@@ -111,28 +126,28 @@
             <div class="inventory-container">
                 <div class="stats-overview" id="statsOverview">
                     <div class="stat-card">
-                        <i class="fa-solid fa-layer-group stat-icon icon-blue"></i>
+                        <div class="stat-icon icon-blue"><i class="fa-solid fa-layer-group"></i></div>
                         <div>
                             <span class="stat-title">Tổng loại sản phẩm</span>
                             <h3 id="statTotalProducts">0</h3>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <i class="fa-solid fa-cubes stat-icon icon-green"></i>
+                        <div class="stat-icon icon-green"><i class="fa-solid fa-cubes"></i></div>
                         <div>
                             <span class="stat-title">Tổng hàng tồn kho</span>
                             <h3 id="statTotalItems">0</h3>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <i class="fa-solid fa-triangle-exclamation stat-icon icon-amber"></i>
+                        <div class="stat-icon icon-amber"><i class="fa-solid fa-triangle-exclamation"></i></div>
                         <div>
                             <span class="stat-title">Cảnh báo sắp hết hàng</span>
                             <h3 id="statLowStock">0</h3>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <i class="fa-solid fa-sack-dollar stat-icon icon-purple"></i>
+                        <div class="stat-icon icon-purple"><i class="fa-solid fa-sack-dollar"></i></div>
                         <div>
                             <span class="stat-title">Doanh thu ghi nhận</span>
                             <h3 id="statRevenue">0 đ</h3>
@@ -145,22 +160,24 @@
                         <h2><i class="fa-solid fa-boxes-packing"></i> Báo Cáo Tồn Kho Nhanh Thời Gian Thực</h2>
                         <button class="btn-refresh" onclick="loadInventory()"><i class="fa-solid fa-rotate"></i> Làm mới</button>
                     </div>
-                    <table class="inventory-table">
-                        <thead>
-                            <tr>
-                                <th>Mã SKU</th>
-                                <th>Tên Sản Phẩm</th>
-                                <th>Danh Mục</th>
-                                <th>Đơn Giá</th>
-                                <th>Số Lượng Tồn</th>
-                                <th>Đơn Vị</th>
-                                <th>Trạng Thái Kho</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inventoryTableBody">
-                            <!-- Loaded dynamically -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã SKU</th>
+                                    <th>Tên Sản Phẩm</th>
+                                    <th>Danh Mục</th>
+                                    <th>Đơn Giá</th>
+                                    <th>Số Lượng Tồn</th>
+                                    <th>Đơn Vị</th>
+                                    <th>Trạng Thái Kho</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -181,11 +198,11 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Mã SKU</label>
-                        <input type="text" id="modalSku" placeholder="VD: SP009" required>
+                        <input type="text" id="modalSku" placeholder="VD: SP015" required>
                     </div>
                     <div class="form-group">
                         <label>Đơn vị</label>
-                        <input type="text" id="modalUnit" placeholder="lon, gói, chai..." value="cái" required>
+                        <input type="text" id="modalUnit" placeholder="cái, gói, chai..." value="cái" required>
                     </div>
                 </div>
                 <div class="form-group">
@@ -195,7 +212,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Giá bán (VNĐ)</label>
-                        <input type="number" id="modalPrice" placeholder="VD: 15000" required>
+                        <input type="number" id="modalPrice" placeholder="VD: 25000" required>
                     </div>
                     <div class="form-group">
                         <label>Số lượng nhập kho</label>
@@ -204,7 +221,7 @@
                 </div>
                 <div class="form-group">
                     <label>URL Hình ảnh (tùy chọn)</label>
-                    <input type="text" id="modalImage" placeholder="https://...">
+                    <input type="text" id="modalImage" placeholder="https://images.unsplash.com/...">
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn-cancel" onclick="closeAddProductModal()">Hủy</button>
@@ -259,8 +276,10 @@
             <div class="receipt-footer">
                 <p>Cảm ơn Quý khách & Hẹn gặp lại!</p>
                 <p><i>Hệ thống Quản lý Bán hàng Containerized POS 2026</i></p>
-                <button class="btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> In Hóa Đơn</button>
-                <button class="btn-close-receipt" onclick="closeReceiptModal()">Đóng</button>
+                <div class="receipt-btns">
+                    <button class="btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> In Hóa Đơn</button>
+                    <button class="btn-close-receipt" onclick="closeReceiptModal()">Đóng</button>
+                </div>
             </div>
         </div>
     </div>

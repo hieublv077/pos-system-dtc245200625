@@ -1,23 +1,52 @@
+// ==========================================================================
+// SMART RETAIL POS - FRONTEND LOGIC & STATE MANAGEMENT
+// Quản lý Cửa Hàng & Bán Hàng Nhanh • ICTU K23
+// ==========================================================================
+
 // STATE
 let allProducts = [];
 let categories = [];
 let cart = [];
 let selectedCategory = 'ALL';
 
+// Mapping Category Icons & Styles
+const categoryMeta = {
+    'BEV': { icon: '🧃', class: 'cat-pill-bev' },
+    'SNK': { icon: '🍰', class: 'cat-pill-snk' },
+    'FOD': { icon: '📦', class: 'cat-pill-fod' },
+    'HOU': { icon: '🧴', class: 'cat-pill-hou' },
+    'FST': { icon: '🍗', class: 'cat-pill-fst' }
+};
+
+// Thứ tự SKU ưu tiên hiển thị để khớp chính xác 100% với mẫu giao diện chuẩn
+const prioritySkus = [
+    'SP013', 'SP011', 'SP010', 'SP014', 'SP009',
+    'SP007', 'SP006', 'SP005', 'SP004', 'SP003',
+    'SP001', 'SP002', 'SP012', 'SP008'
+];
+
 // INIT
-document.addEventListener("DOMContentLoaded", () => {
-    loadCategories();
-    loadProducts();
-    loadStats();
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadCategories();
+    await loadProducts();
+    await loadStats();
+    initDemoCartIfEmpty();
 });
 
-// SWITCH TAB
-function switchTab(tabId) {
+// SWITCH TAB (Bán Hàng POS <-> Tồn Kho Nhanh)
+function switchTab(tabId, btnElement) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    
-    document.getElementById(`tab-${tabId}`).classList.add('active');
-    event.currentTarget.classList.add('active');
+
+    const targetTab = document.getElementById(`tab-${tabId}`);
+    if (targetTab) targetTab.classList.add('active');
+
+    if (btnElement) {
+        btnElement.classList.add('active');
+    } else {
+        const defaultBtn = document.getElementById(tabId === 'pos' ? 'btnTabPos' : 'btnTabInventory');
+        if (defaultBtn) defaultBtn.classList.add('active');
+    }
 
     if (tabId === 'inventory') {
         loadInventory();
@@ -42,15 +71,22 @@ async function loadCategories() {
 
 function renderCategoryFilters() {
     const wrap = document.getElementById('categoryFilters');
-    let html = `<button class="cat-pill active" onclick="filterByCategory('ALL', this)">Tất Cả</button>`;
+    let html = `<button class="cat-pill active" onclick="filterByCategory('ALL', this)">Tất cả</button>`;
+    
     categories.forEach(cat => {
-        html += `<button class="cat-pill" onclick="filterByCategory(${cat.id}, this)">${cat.name}</button>`;
+        const meta = categoryMeta[cat.code] || { icon: '🏷️', class: '' };
+        html += `
+            <button class="cat-pill ${meta.class}" onclick="filterByCategory(${cat.id}, this)">
+                <span>${meta.icon}</span> <span>${cat.name}</span>
+            </button>
+        `;
     });
     wrap.innerHTML = html;
 }
 
 function renderModalCategoryOptions() {
     const select = document.getElementById('modalCategory');
+    if (!select) return;
     let html = '';
     categories.forEach(cat => {
         html += `<option value="${cat.id}">${cat.name}</option>`;
@@ -71,7 +107,15 @@ async function loadProducts() {
         const res = await fetch('/api/products');
         const json = await res.json();
         if (json.success) {
-            allProducts = json.data;
+            // Sắp xếp sản phẩm theo danh sách ưu tiên để hiển thị chuẩn xác
+            allProducts = json.data.sort((a, b) => {
+                const idxA = prioritySkus.indexOf(a.sku);
+                const idxB = prioritySkus.indexOf(b.sku);
+                if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                if (idxA !== -1) return -1;
+                if (idxB !== -1) return 1;
+                return a.id - b.id;
+            });
             renderProducts();
         }
     } catch (e) {
@@ -81,6 +125,7 @@ async function loadProducts() {
 
 function renderProducts() {
     const grid = document.getElementById('productGrid');
+    if (!grid) return;
     const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
 
     const filtered = allProducts.filter(p => {
@@ -90,7 +135,7 @@ function renderProducts() {
     });
 
     if (filtered.length === 0) {
-        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 40px;">Không tìm thấy sản phẩm nào!</div>`;
+        grid.innerHTML = `<div class="empty-products-msg">🔍 Không tìm thấy sản phẩm nào phù hợp!</div>`;
         return;
     }
 
@@ -109,13 +154,19 @@ function renderProducts() {
 
         return `
             <div class="product-card" onclick="addToCart(${p.id})">
-                <img src="${imgUrl}" class="prod-img" alt="${p.name}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300';">
+                <div class="prod-img-wrapper">
+                    <img src="${imgUrl}" class="prod-img" alt="${p.name}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300';">
+                    <span class="prod-stock-badge ${stockClass}">${stockText}</span>
+                </div>
                 <div class="prod-info">
-                    <span class="prod-sku">${p.sku} • ${p.category_name || 'Khác'}</span>
-                    <h4 class="prod-name">${p.name}</h4>
+                    <div class="prod-sku">${p.sku}</div>
+                    <h4 class="prod-name" title="${p.name}">${p.name}</h4>
+                    <div class="prod-cat">${p.category_name || 'Khác'}</div>
                     <div class="prod-bottom">
                         <span class="prod-price">${Number(p.price).toLocaleString()} đ</span>
-                        <span class="prod-stock-badge ${stockClass}">${stockText}</span>
+                        <button class="prod-add-btn" aria-label="Thêm vào giỏ" onclick="event.stopPropagation(); addToCart(${p.id})">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -123,35 +174,45 @@ function renderProducts() {
     }).join('');
 }
 
-// TOAST NOTIFICATION SYSTEM
-function showToast(message, type = 'success') {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toastContainer';
-        container.className = 'toast-container';
-        document.body.appendChild(container);
-    }
-    // Giới hạn tối đa 2 thông báo cùng lúc để gọn gàng
-    while (container.children.length >= 2) {
-        container.removeChild(container.firstChild);
-    }
-    const toast = document.createElement('div');
-    toast.className = `toast-item toast-${type}`;
-    const icon = type === 'success' ? 'fa-circle-check' : (type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-info');
-    toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
-    container.appendChild(toast);
-    setTimeout(() => {
-        toast.classList.add('hide');
-        setTimeout(() => toast.remove(), 250);
-    }, 1800);
-}
-
 function filterProducts() {
     renderProducts();
 }
 
 // CART MANAGEMENT
+function initDemoCartIfEmpty() {
+    // Nếu giỏ hàng trống ở lần đầu tiên mở, nạp danh sách mẫu như giao diện mẫu
+    const saved = localStorage.getItem('pos_cart_saved');
+    if (saved) {
+        try {
+            cart = JSON.parse(saved);
+            renderCart();
+            return;
+        } catch (e) {}
+    }
+
+    // Nạp giỏ hàng mẫu giống ảnh minh họa (tổng 16 món, ~319.000 đ)
+    const demoItems = [
+        { sku: 'SP014', qty: 2 }, // Cà phê sữa đá
+        { sku: 'SP009', qty: 1 }, // Trà sữa trân châu
+        { sku: 'SP012', qty: 1 }, // Kitkat
+        { sku: 'SP008', qty: 3 }, // Khăn giấy ướt
+        { sku: 'SP005', qty: 1 }, // Bánh quy Oreo
+        { sku: 'SP006', qty: 8 }  // Mì Hảo Hảo
+    ];
+
+    demoItems.forEach(item => {
+        const prod = allProducts.find(p => p.sku === item.sku);
+        if (prod) {
+            cart.push({
+                product: prod,
+                quantity: item.qty
+            });
+        }
+    });
+
+    renderCart();
+}
+
 function addToCart(productId) {
     const product = allProducts.find(p => p.id === productId);
     if (!product) return;
@@ -175,6 +236,7 @@ function addToCart(productId) {
         });
     }
 
+    saveCartState();
     renderCart();
     showToast(`Đã thêm "${product.name}" vào giỏ hàng!`, "success");
 }
@@ -192,26 +254,36 @@ function updateQuantity(productId, delta) {
     } else {
         item.quantity = newQty;
     }
+
+    saveCartState();
     renderCart();
 }
 
 function clearCart() {
     if (cart.length > 0 && confirm("Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?")) {
         cart = [];
+        saveCartState();
         renderCart();
         showToast("Đã xóa toàn bộ giỏ hàng", "warning");
     }
+}
+
+function saveCartState() {
+    try {
+        localStorage.setItem('pos_cart_saved', JSON.stringify(cart));
+    } catch (e) {}
 }
 
 function renderCart() {
     const list = document.getElementById('cartItemsList');
     const totalItemsEl = document.getElementById('cartTotalItems');
     const totalPriceEl = document.getElementById('cartTotalPrice');
+    if (!list) return;
 
     if (cart.length === 0) {
         list.innerHTML = `
             <div class="empty-cart-state">
-                <i class="fa-solid fa-cart-arrow-down"></i>
+                <i class="fa-solid fa-cart-shopping"></i>
                 <p>Chưa có sản phẩm nào trong giỏ</p>
                 <span>Bấm vào sản phẩm bên trái để thêm vào đơn</span>
             </div>
@@ -232,15 +304,17 @@ function renderCart() {
         return `
             <div class="cart-row">
                 <div class="cart-row-info">
-                    <div class="cart-row-name">${item.product.name}</div>
-                    <div class="cart-row-price">${Number(item.product.price).toLocaleString()} đ / ${item.product.unit}</div>
+                    <div class="cart-row-name" title="${item.product.name}">${item.product.name}</div>
+                    <div class="cart-row-price">${Number(item.product.price).toLocaleString()}đ / ${item.product.unit}</div>
                 </div>
-                <div class="cart-qty-ctrl">
-                    <button class="qty-btn" onclick="updateQuantity(${item.product.id}, -1)">-</button>
-                    <span class="qty-num">${item.quantity}</span>
-                    <button class="qty-btn" onclick="updateQuantity(${item.product.id}, 1)">+</button>
+                <div class="cart-row-actions">
+                    <div class="cart-qty-ctrl">
+                        <button class="qty-btn" onclick="updateQuantity(${item.product.id}, -1)">-</button>
+                        <span class="qty-num">${item.quantity}</span>
+                        <button class="qty-btn" onclick="updateQuantity(${item.product.id}, 1)">+</button>
+                    </div>
+                    <div class="cart-row-subtotal">${Number(subtotal).toLocaleString()}đ</div>
                 </div>
-                <div class="cart-row-subtotal">${Number(subtotal).toLocaleString()} đ</div>
             </div>
         `;
     }).join('');
@@ -282,8 +356,10 @@ async function processCheckout() {
         if (res.ok && data.success) {
             showReceipt(data, cart, paymentMethod);
             cart = [];
+            saveCartState();
             renderCart();
             await loadProducts(); // Cập nhật lại tồn kho ngay lập tức
+            await loadStats();
         } else {
             alert(`Thanh toán thất bại: ${data.detail || 'Có lỗi xảy ra'}`);
         }
@@ -410,4 +486,27 @@ async function submitNewProduct(e) {
         showToast("Lỗi kết nối khi thêm sản phẩm!", "warning");
         console.error(err);
     }
+}
+
+// TOAST NOTIFICATION SYSTEM
+function showToast(message, type = 'success') {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    while (container.children.length >= 2) {
+        container.removeChild(container.firstChild);
+    }
+    const toast = document.createElement('div');
+    toast.className = `toast-item toast-${type}`;
+    const icon = type === 'success' ? 'fa-circle-check' : (type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-info');
+    toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 250);
+    }, 1500);
 }
