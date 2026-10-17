@@ -30,7 +30,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadCategories();
     await loadProducts();
     await loadStats();
-    initDemoCartIfEmpty();
+    // Khởi tạo giỏ hàng trống sạch sẽ khi làm mới trang
+    cart = [];
+    localStorage.removeItem('pos_cart_saved');
+    renderCart();
 });
 
 // SWITCH TAB (Bán Hàng POS <-> Tồn Kho Nhanh)
@@ -185,67 +188,11 @@ function filterProducts() {
 }
 
 // CART MANAGEMENT
-function loadDemoCart(force = false) {
-    if (!force) {
-        const saved = localStorage.getItem('pos_cart_saved');
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    cart = parsed;
-                    renderCart();
-                    return;
-                }
-            } catch (e) {}
-        }
-    }
-
-    // Nạp giỏ hàng mẫu chuẩn xác 100% như ảnh giao diện (6 món, 16 đơn vị, tổng 319.000 đ)
-    const demoItems = [
-        { sku: 'SP014', qty: 2 }, // Cà phê sữa đá Sài Gòn 300ml (2 x 22.000 = 44.000đ)
-        { sku: 'SP009', qty: 1 }, // Trà sữa trân châu đường đen 500ml (1 x 28.000 = 28.000đ)
-        { sku: 'SP012', qty: 1 }, // Socola Kitkat thanh 4 ngón (1 x 15.000 = 15.000đ)
-        { sku: 'SP008', qty: 3 }, // Khăn giấy ướt cao cấp 80 tờ (3 x 25.000 = 75.000đ)
-        { sku: 'SP005', qty: 1 }, // Bánh quy Oreo socola 133g (1 x 18.000 = 18.000đ)
-        { sku: 'SP006', qty: 8 }  // Mì ăn liền Hảo Hảo tôm chua cay (8 gói: tổng 16 món)
-    ];
-
-    cart = [];
-    demoItems.forEach(item => {
-        const prod = allProducts.find(p => p.sku === item.sku);
-        if (prod) {
-            cart.push({
-                product: prod,
-                quantity: item.qty
-            });
-        }
-    });
-
-    saveCartState();
-    renderCart();
-}
-
-function initDemoCartIfEmpty() {
-    loadDemoCart(false);
-}
-
 function clearCart() {
-    if (cart.length === 0) {
-        loadDemoCart(true);
-        showToast("Đã khôi phục giỏ hàng mẫu 16 món (319.000 đ)!", "info");
-        return;
-    }
-
-    const confirmClear = confirm("Bấm OK để XÓA TRỐNG giỏ hàng.\nBấm Cancel (Hủy) để KHÔI PHỤC giỏ hàng mẫu chuẩn (16 món - 319.000 đ)!");
-    if (confirmClear) {
-        cart = [];
-        saveCartState();
-        renderCart();
-        showToast("Đã xóa toàn bộ giỏ hàng", "warning");
-    } else {
-        loadDemoCart(true);
-        showToast("Đã khôi phục giỏ hàng mẫu 16 món chuẩn như ảnh!", "success");
-    }
+    cart = [];
+    localStorage.removeItem('pos_cart_saved');
+    renderCart();
+    showToast("Đã xóa toàn bộ giỏ hàng!", "info");
 }
 
 function addToCart(productId) {
