@@ -73,7 +73,13 @@ function renderCategoryFilters() {
     const wrap = document.getElementById('categoryFilters');
     let html = `<button class="cat-pill active" onclick="filterByCategory('ALL', this)">Tất cả</button>`;
     
-    categories.forEach(cat => {
+    // Đúng thứ tự 4 danh mục xuất hiện trên thanh bar như giao diện mẫu
+    const displayCodes = ['BEV', 'SNK', 'FOD', 'HOU'];
+    const filteredCats = categories
+        .filter(c => displayCodes.includes(c.code))
+        .sort((a, b) => displayCodes.indexOf(a.code) - displayCodes.indexOf(b.code));
+
+    filteredCats.forEach(cat => {
         const meta = categoryMeta[cat.code] || { icon: '🏷️', class: '' };
         html += `
             <button class="cat-pill ${meta.class}" onclick="filterByCategory(${cat.id}, this)">
@@ -179,27 +185,32 @@ function filterProducts() {
 }
 
 // CART MANAGEMENT
-function initDemoCartIfEmpty() {
-    // Nếu giỏ hàng trống ở lần đầu tiên mở, nạp danh sách mẫu như giao diện mẫu
-    const saved = localStorage.getItem('pos_cart_saved');
-    if (saved) {
-        try {
-            cart = JSON.parse(saved);
-            renderCart();
-            return;
-        } catch (e) {}
+function loadDemoCart(force = false) {
+    if (!force) {
+        const saved = localStorage.getItem('pos_cart_saved');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    cart = parsed;
+                    renderCart();
+                    return;
+                }
+            } catch (e) {}
+        }
     }
 
-    // Nạp giỏ hàng mẫu giống ảnh minh họa (tổng 16 món, ~319.000 đ)
+    // Nạp giỏ hàng mẫu chuẩn xác 100% như ảnh giao diện (6 món, 16 đơn vị, tổng 319.000 đ)
     const demoItems = [
-        { sku: 'SP014', qty: 2 }, // Cà phê sữa đá
-        { sku: 'SP009', qty: 1 }, // Trà sữa trân châu
-        { sku: 'SP012', qty: 1 }, // Kitkat
-        { sku: 'SP008', qty: 3 }, // Khăn giấy ướt
-        { sku: 'SP005', qty: 1 }, // Bánh quy Oreo
-        { sku: 'SP006', qty: 8 }  // Mì Hảo Hảo
+        { sku: 'SP014', qty: 2 }, // Cà phê sữa đá Sài Gòn 300ml (2 x 22.000 = 44.000đ)
+        { sku: 'SP009', qty: 1 }, // Trà sữa trân châu đường đen 500ml (1 x 28.000 = 28.000đ)
+        { sku: 'SP012', qty: 1 }, // Socola Kitkat thanh 4 ngón (1 x 15.000 = 15.000đ)
+        { sku: 'SP008', qty: 3 }, // Khăn giấy ướt cao cấp 80 tờ (3 x 25.000 = 75.000đ)
+        { sku: 'SP005', qty: 1 }, // Bánh quy Oreo socola 133g (1 x 18.000 = 18.000đ)
+        { sku: 'SP006', qty: 8 }  // Mì ăn liền Hảo Hảo tôm chua cay (8 gói: tổng 16 món)
     ];
 
+    cart = [];
     demoItems.forEach(item => {
         const prod = allProducts.find(p => p.sku === item.sku);
         if (prod) {
@@ -210,7 +221,31 @@ function initDemoCartIfEmpty() {
         }
     });
 
+    saveCartState();
     renderCart();
+}
+
+function initDemoCartIfEmpty() {
+    loadDemoCart(false);
+}
+
+function clearCart() {
+    if (cart.length === 0) {
+        loadDemoCart(true);
+        showToast("Đã khôi phục giỏ hàng mẫu 16 món (319.000 đ)!", "info");
+        return;
+    }
+
+    const confirmClear = confirm("Bấm OK để XÓA TRỐNG giỏ hàng.\nBấm Cancel (Hủy) để KHÔI PHỤC giỏ hàng mẫu chuẩn (16 món - 319.000 đ)!");
+    if (confirmClear) {
+        cart = [];
+        saveCartState();
+        renderCart();
+        showToast("Đã xóa toàn bộ giỏ hàng", "warning");
+    } else {
+        loadDemoCart(true);
+        showToast("Đã khôi phục giỏ hàng mẫu 16 món chuẩn như ảnh!", "success");
+    }
 }
 
 function addToCart(productId) {
@@ -257,15 +292,6 @@ function updateQuantity(productId, delta) {
 
     saveCartState();
     renderCart();
-}
-
-function clearCart() {
-    if (cart.length > 0 && confirm("Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?")) {
-        cart = [];
-        saveCartState();
-        renderCart();
-        showToast("Đã xóa toàn bộ giỏ hàng", "warning");
-    }
 }
 
 function saveCartState() {

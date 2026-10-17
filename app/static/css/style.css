@@ -404,30 +404,30 @@ body {
 }
 
 /* Distinct Pastel Category Pills */
-.cat-pill-bev { background: #e0f2fe; border-color: #bae6fd; }
-.cat-pill-snk { background: #fee2e2; border-color: #fecaca; }
-.cat-pill-fod { background: #e0f2fe; border-color: #bae6fd; }
-.cat-pill-hou { background: #e0f2fe; border-color: #bae6fd; }
-.cat-pill-fst { background: #fff7ed; border-color: #fed7aa; }
+.cat-pill-bev { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+.cat-pill-snk { background: #fdf2f8; border-color: #fbcfe8; color: #9d174d; }
+.cat-pill-fod { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+.cat-pill-hou { background: #f0f9ff; border-color: #bae6fd; color: #0369a1; }
+.cat-pill-fst { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
 
-/* Product Grid */
+/* Product Grid (5 Cột chuẩn xác như giao diện mẫu) */
 .product-grid {
     flex: 1;
     overflow-y: auto;
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 12px;
+    gap: 10px;
     align-content: start;
     padding-right: 4px;
     padding-bottom: 6px;
 }
 
-@media (max-width: 1440px) {
+@media (max-width: 1080px) {
     .product-grid {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
-@media (max-width: 1200px) {
+@media (max-width: 860px) {
     .product-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
