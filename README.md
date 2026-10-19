@@ -1,4 +1,4 @@
-# HỆ THỐNG QUẢN LÝ CỬA HÀNG VÀ BÁN HÀNG POS (ĐỀ 21)
+# HỆ THỐNG QUẢN LÝ CỬA HÀNG/POS (ĐỀ 21)
 > **Học phần**: Triển khai và Quản trị Hệ thống Phần mềm (TKQT HTPM K23)  
 > **Trường**: Đại học Công nghệ Thông tin & Truyền thông - Đại học Thái Nguyên (ICTU)  
 > **Sinh viên thực hiện**: Dương Quý Hiếu  
