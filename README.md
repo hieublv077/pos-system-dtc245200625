@@ -79,11 +79,6 @@ Promtail tự động gom log từ toàn bộ container trên host đẩy về L
   ```logql
   {job="docker"} |= "pos_webapp" |= "POST /api/orders"
   ```
-
-### Kiểm tra Security Headers bằng lệnh curl:
-```bash
-curl -k -I https://localhost
-```
 *Kết quả phản hồi sẽ bao gồm:*
 * `server: nginx` (không lộ số hiệu phiên bản do bật `server_tokens off;`)
 * `x-frame-options: SAMEORIGIN`
