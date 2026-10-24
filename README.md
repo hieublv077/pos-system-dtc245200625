@@ -51,10 +51,10 @@ docker-compose ps
 | Dịch vụ | Địa chỉ truy cập | Giao thức | Ghi chú |
 | :--- | :--- | :--- | :--- |
 | **Giao diện Bán hàng POS** | [https://localhost](https://192.168.141.129/) | HTTPS (SSL) | Tự động chuyển hướng từ `http://localhost` |
-| **Quản trị phpMyAdmin** | [https://localhost/pma/](https://localhost/pma/) | HTTPS (SSL) | User: `pos_user` / Pass trong `.env` |
+| **Quản trị phpMyAdmin** | [[https://localhost/pma/](https://192.168.141.129/pma/)](https://192.168.141.129/pma/) | HTTPS (SSL) | User: `pos_user` / Pass trong `.env` |
 | **Prometheus Server** | [http://localhost:9090](http://localhost:9090) | HTTP | Kiểm tra targets tại `/targets` |
 | **Grafana Dashboard** | [http://localhost:3000](http://localhost:3000) | HTTP | User: `admin` / Pass: `AdminGrafana_2026!` |
-| **Loki Log Server** | [http://localhost:3100](http://localhost:3100) | HTTP | Endpoint nhận log và API LogQL |
+| **Loki Log Server** | http://192.168.141.129:3000/explore](http://192.168.141.129:3000/explore) | HTTP | Endpoint nhận log và API LogQL |
 
 ### 5. Giám sát hệ thống (Observability):
 * **Prometheus Targets** (`http://localhost:9090/targets`): Tự động cào dữ liệu từ 3 job: `prometheus`, `cadvisor` (container CPU/RAM), và `pos_webapp` (request rate, doanh thu, đơn hàng).
