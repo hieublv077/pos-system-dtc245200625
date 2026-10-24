@@ -50,7 +50,7 @@ docker-compose ps
 ## 🌐 4. Địa chỉ truy cập dịch vụ
 | Dịch vụ | Địa chỉ truy cập | Giao thức | Ghi chú |
 | :--- | :--- | :--- | :--- |
-| **Giao diện Bán hàng POS** | [https://localhost](https://localhost) | HTTPS (SSL) | Tự động chuyển hướng từ `http://localhost` |
+| **Giao diện Bán hàng POS** | [https://localhost](https://192.168.141.129/) | HTTPS (SSL) | Tự động chuyển hướng từ `http://localhost` |
 | **Quản trị phpMyAdmin** | [https://localhost/pma/](https://localhost/pma/) | HTTPS (SSL) | User: `pos_user` / Pass trong `.env` |
 | **Prometheus Server** | [http://localhost:9090](http://localhost:9090) | HTTP | Kiểm tra targets tại `/targets` |
 | **Grafana Dashboard** | [http://localhost:3000](http://localhost:3000) | HTTP | User: `admin` / Pass: `AdminGrafana_2026!` |
